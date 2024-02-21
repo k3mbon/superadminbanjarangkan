@@ -60,8 +60,8 @@ const DocumentList = () => {
               </div>
             </Link>
             <button onClick={() => handleDeleteDocument(document.id)}>
-                  Delete
-                </button>
+              Delete
+            </button>
           </li>
         ))}
       </ul>

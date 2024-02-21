@@ -70,7 +70,7 @@ const Sidebar = () => {
             <FaNewspaper className="fs-5 me-2" />
             <span className="fs-5">Postingan Terbit</span>
           </Link>
-          <Link className="list-group-item py-2 mt-2" to="/posts">
+          <Link className="list-group-item py-2 mt-2" to="/galeri">
             <FaImages className="fs-5 me-2" />
             <span className="fs-5">Galeri</span>
           </Link>
