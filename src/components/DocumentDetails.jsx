@@ -1,8 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, deleteDoc, collection, addDoc, updateDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  deleteDoc,
+  collection,
+  addDoc,
+  updateDoc,
+} from 'firebase/firestore';
 import { db } from '../firebase';
 import BlogForm from './BlogForm';
+import { Button, Col, Container, Row } from 'react-bootstrap';
+import Sidebar from './Sidebar';
 
 const DocumentDetails = () => {
   const { id } = useParams();
@@ -45,7 +54,10 @@ const DocumentDetails = () => {
         await addDoc(destinationCollectionRef, documentData);
         await deleteDoc(documentRef);
 
-        console.log('Document transferred and deleted successfully:', documentId);
+        console.log(
+          'Document transferred and deleted successfully:',
+          documentId
+        );
         navigate(-1);
       } else {
         console.error('Document not found');
@@ -60,7 +72,10 @@ const DocumentDetails = () => {
       const documentRef = doc(db, 'poststunda', documentId);
       await deleteDoc(documentRef);
 
-      console.log('Document deleted successfully (without transfer):', documentId);
+      console.log(
+        'Document deleted successfully (without transfer):',
+        documentId
+      );
 
       navigate(-1);
     } catch (error) {
@@ -95,21 +110,56 @@ const DocumentDetails = () => {
   }
 
   return (
-    <div>
-      <img src={documentDetails.gambarUrls} alt="Thumbnail" />
-      <h3>{documentDetails.judul}</h3>
-      <div dangerouslySetInnerHTML={{ __html: documentDetails.isi }} />
-      <button onClick={() => transferAndDelete(id)}>Setujui Dan Hapus</button>
-      <button onClick={() => deleteDocumentOnly(id)}>Hapus Tanpa Setujui</button>
-      <button onClick={toggleEditMode}>Edit</button>
-      <button onClick={goBack}>Go Back</button>
-      {isEditMode && (
-        <BlogForm
-          dataToEdit={documentDetails}
-          onFormSubmit={(data) => handleFormSubmit(data)}
-        />
-      )}
-    </div>
+    <>
+      <Container fluid className="bg-light min-vh-100">
+        <Row>
+          <Col md="3" className="bg-white min-vh-100">
+            <Sidebar />
+          </Col>
+          <Col className="py-5" md="auto">
+            <div className="d-flex flex-column justify-content-center mx-5">
+              <img src={documentDetails.gambarUrls} alt="Thumbnail" />
+              <h3>{documentDetails.judul}</h3>
+              <div dangerouslySetInnerHTML={{ __html: documentDetails.isi }} />
+              <div>
+                <Button
+                  className="mx-2"
+                  variant="primary"
+                  onClick={() => transferAndDelete(id)}
+                >
+                  Setujui Dan Hapus
+                </Button>
+                <Button
+                  className="mx-2"
+                  variant="danger"
+                  onClick={() => deleteDocumentOnly(id)}
+                >
+                  Hapus Tanpa Setujui
+                </Button>
+                <Button
+                  className="mx-2"
+                  variant="success"
+                  onClick={toggleEditMode}
+                >
+                  Edit
+                </Button>
+                <Button className="mx-2" variant="warning" onClick={goBack}>
+                  Go Back
+                </Button>
+              </div>
+              <div className="mx-5 mt-5">
+                {isEditMode && (
+                  <BlogForm
+                    dataToEdit={documentDetails}
+                    onFormSubmit={(data) => handleFormSubmit(data)}
+                  />
+                )}
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 };
 
