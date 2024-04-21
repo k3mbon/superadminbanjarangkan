@@ -1,0 +1,36 @@
+/* PostsTerbit.css */
+.post-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .post-card h3 {
+    margin-top: 0;
+  }
+  
+  .post-card p {
+    margin-bottom: 10px;
+  }
+  
+  .post-card img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+  }
+  
+  .post-card button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .post-card button:hover {
+    background-color: #c82333;
+  }
+  
