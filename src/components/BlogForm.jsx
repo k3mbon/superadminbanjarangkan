@@ -1,5 +1,4 @@
-// src/components/BlogForm.jsx
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { storage } from '../firebase';
 import {
   ref,
@@ -7,69 +6,88 @@ import {
   deleteObject,
   getDownloadURL,
 } from 'firebase/storage';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import the styles
-import '../styles/BlogForm.css';
 import { Button, Form } from 'react-bootstrap';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 
-const BlogForm = () => {
+const BlogForm = ({ dataToEdit, onFormSubmit }) => {
   const [judul, setJudul] = useState('');
   const [isi, setIsi] = useState('');
-  const [gambar, setGambar] = useState([]);
-  const [gambarUrls, setGambarUrls] = useState([]);
+  const [gambar, setGambar] = useState(null);
+  const [gambarThumbnail, setGambarThumbnail] = useState('');
+  const user = auth.currentUser;
+  const sanitizedHTML = DOMPurify.sanitize(isi);
 
-  const handleGambarChange = (e) => {
-    const files = Array.from(e.target.files);
-    setGambar((prevGambar) => [...prevGambar, ...files]);
-  };
+  useEffect(() => {
+    if (dataToEdit) {
+      setJudul(dataToEdit.judul || '');
+      setIsi(dataToEdit.isi || '');
+      setGambarThumbnail(dataToEdit.gambarThumbnail || '');
+    }
+  }, [dataToEdit]);
 
+  
   const handleUpload = async () => {
-    const urls = await Promise.all(
-      gambar.map(async (image) => {
-        const storageRef = ref(storage, `postImages/${image.name}`);
-        await uploadBytes(storageRef, image);
-        return getDownloadURL(storageRef);
-      })
-    );
-    setGambarUrls(urls);
+    if (!gambar) return;
+
+    // Delete previous image if exists
+    if (gambarThumbnail) {
+      const imageRef = ref(storage, `postImages/${gambarThumbnail}`);
+      await deleteObject(imageRef);
+    }
+
+    const storageRef = ref(storage, `postImages/${gambar.name}`);
+    try {
+      await uploadBytes(storageRef, gambar);
+      const url = await getDownloadURL(storageRef);
+      setGambarThumbnail(url); // Store download URL in state
+      console.log('Image uploaded successfully:', url);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
-
-  const handleDeleteGambar = (index) => {
-    const imageRef = ref(storage, `postImages/${gambar[index].name}`);
-    deleteObject(imageRef);
-
-    setGambarUrls((prevUrls) => [
-      ...prevUrls.slice(0, index),
-      ...prevUrls.slice(index + 1),
-    ]);
-    setGambar((prevGambar) => [
-      ...prevGambar.slice(0, index),
-      ...prevGambar.slice(index + 1),
-    ]);
-  };
-
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (user) {
+      try {
+        await handleUpload();
 
-    try {
-      await handleUpload();
+        if (dataToEdit) {
+          const documentRef = doc(db, 'poststunda', dataToEdit.id);
+          await setDoc(documentRef, {
+            judul,
+            isi,
+            gambarThumbnail, // Store image URL in Firestore
+          });
+          console.log('Blog post updated successfully!');
+        } else {
+          await addDoc(collection(db, 'poststunda'), {
+            judul,
+            isi,
+            gambarThumbnail, // Store image URL in Firestore
+            createdAt: serverTimestamp(), // Add timestamp automatically
+          });
+          console.log('Blog post created successfully!');
+        }
 
-      const postRef = await addDoc(collection(db, 'poststunda'), {
-        judul,
-        isi,
-        gambarUrls,
-        createdAt: serverTimestamp(),
-      });
-
-      setJudul('');
-      setGambar([]);
-      setIsi([]);
-      setGambarUrls([]);
-      console.log('Blog post created successfully!');
-    } catch (error) {
-      console.error('Error creating blog post:', error);
+        setJudul('');
+        setIsi('');
+        setGambar(null);
+        setGambarThumbnail('');
+        
+        if (onFormSubmit) {
+          onFormSubmit();
+        }
+      } catch (error) {
+        console.error('Error creating/updating blog post:', error);
+      }
+    } else {
+      console.log('User is not authenticated. Redirecting to login page...');
     }
   };
 
@@ -98,8 +116,8 @@ const BlogForm = () => {
 
   return (
     <>
-      <Form className="mx-5">
-        <h2>Buat Postingan Artikel</h2>
+      <Form className="mx-5" onSubmit={handleSubmit}>
+        <h2>{dataToEdit ? 'Edit' : 'Buat'} Postingan Artikel</h2>
         <hr className="text-dark" />
         <Form.Group className="my-5">
           <Form.Label>Judul Artikel</Form.Label>
@@ -114,49 +132,17 @@ const BlogForm = () => {
         <Form.Group className="my-5">
           <Form.Label>Isi Artikel</Form.Label>
           <ReactQuill
-            value={isi}
+            value={sanitizedHTML}
             onChange={(value) => setIsi(value)}
             placeholder="Type your blog content here..."
             modules={quillModules}
             formats={quillFormats}
           />
         </Form.Group>
-        <Form.Group className="my-5" controlId="formGridAddress1">
-          <Form.Label>Foto Artikel</Form.Label>
-          <Form.Control type="file" multiple onChange={handleGambarChange} />
-          <Button
-            className="mt-1"
-            type="button"
-            onClick={handleUpload}
-            variant="primary"
-          >
-            Upload Foto
-          </Button>
-        </Form.Group>
-        {gambar.length > 0 && (
-          <div className="image-preview mx-5">
-            {gambar.map((image, index) => (
-              <div key={index}>
-                <img
-                  src={URL.createObjectURL(image)}
-                  alt={`Gambar ${index + 1}`}
-                />
-                <Button type="button" onClick={() => handleDeleteGambar(index)}>
-                  Hapus
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-        <Button
-          className="my-5"
-          variant="primary"
-          type="submit"
-          onChange={handleSubmit}
-        >
-          Submit
+        <Button className="my-5" variant="primary" type="submit">
+          {dataToEdit ? 'Update' : 'Submit'}
         </Button>
-      </Form>{' '}
+      </Form>
     </>
   );
 };

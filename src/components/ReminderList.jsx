@@ -1,7 +1,6 @@
-// AgendaList.jsx
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import '../styles/ReminderList.css';
 
@@ -25,22 +24,45 @@ const ReminderList = () => {
     fetchDocuments();
   }, []);
 
+  const handleDeleteDocument = async (documentId) => {
+    try {
+      console.log('Deleting document with ID:', documentId);
+  
+      if (!documentId) {
+        console.error('Invalid documentId:', documentId);
+        return;
+      }
+  
+      // Create a document reference
+      const documentRef = doc(db, 'agenda', documentId);
+  
+      // Delete the document from Firestore
+      await deleteDoc(documentRef);
+  
+      // Update the state to reflect the deleted document
+      setDocuments((prevDocuments) =>
+        prevDocuments.filter((document) => document.id !== documentId)
+      );
+  
+      console.log('Document deleted successfully:', documentId);
+    } catch (error) {
+      console.error('Error deleting document:', error);
+    }
+  };
+
   return (
     <div className="document-list-container">
-      <h2>POST TERTUNDA</h2>
+      <h2>JADWAL AGENDA</h2>
       <ul className="document-list">
         {documents.map((document) => (
           <li key={document.id} className="document-card">
-            <Link
-              className="text-decoration-none"
-              to={`/document/${document.id}`}
-            >
-              <img src={document.imageUrls} alt="Thumbnail" />
               <div className="document-card-content">
                 <h3>{document.judul}</h3>
                 <p>{document.isi}</p>
+                <button onClick={() => handleDeleteDocument(document.id)}>
+                  Delete
+                </button>
               </div>
-            </Link>
           </li>
         ))}
       </ul>
