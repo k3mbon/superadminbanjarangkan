@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
-import ReactHtmlParser from 'html-react-parser'; // Import ReactHtmlParser
-import '../styles/DocumentList.css'; // Import the CSS file
+import ReactHtmlParser from 'html-react-parser';
+import '../styles/DocumentList.css';
 
 const DocumentList = () => {
   const [documents, setDocuments] = useState([]);
@@ -29,12 +29,11 @@ const DocumentList = () => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
     const images = tempDiv.querySelectorAll('img');
-    
-    // Check if images exist and select the first one
+
     if (images && images.length > 0) {
       return images[0].src;
     }
-  
+
     return null;
   };
 
@@ -47,7 +46,6 @@ const DocumentList = () => {
         return;
       }
 
-      // Create a reference to the document to be deleted
       const documentRef = doc(db, 'poststunda', documentId);
       await deleteDoc(documentRef);
 
@@ -61,6 +59,31 @@ const DocumentList = () => {
     }
   };
 
+  const handleMoveToPosts = async (documentId) => {
+    try {
+      const documentRef = doc(db, 'poststunda', documentId);
+      const documentSnapshot = await getDoc(documentRef);
+
+      if (documentSnapshot.exists()) {
+        const documentData = documentSnapshot.data();
+        const destinationCollectionRef = collection(db, 'posts');
+
+        await addDoc(destinationCollectionRef, documentData);
+        await deleteDoc(documentRef);
+
+        console.log('Document moved to "posts" collection:', documentId);
+
+        setDocuments((prevDocuments) =>
+          prevDocuments.filter((document) => document.id !== documentId)
+        );
+      } else {
+        console.error('Document not found');
+      }
+    } catch (error) {
+      console.error('Error moving document to "posts" collection:', error);
+    }
+  };
+
   return (
     <div className="document-list-container">
       <h2>POST TERTUNDA</h2>
@@ -68,7 +91,7 @@ const DocumentList = () => {
         {documents.map((document) => (
           <li key={document.id} className="document-card">
             <Link
-              to={{ pathname: `/document/${document.id}`, state: { document } }} // Pass document as state
+              to={{ pathname: `/document/${document.id}`, state: { document } }}
             >
               {document.isi && (
                 <img src={extractFirstImage(document.isi)} alt="Thumbnail" />
@@ -78,9 +101,14 @@ const DocumentList = () => {
                 <p>{document.isi}</p>
               </div>
             </Link>
-            <button onClick={() => handleDeleteDocument(document.id)}>
-                Delete
+            <div>
+              <button onClick={() => handleMoveToPosts(document.id)}>
+                Setujui
               </button>
+              <button onClick={() => handleDeleteDocument(document.id)}>
+                Hapus
+              </button>
+            </div>
           </li>
         ))}
       </ul>
