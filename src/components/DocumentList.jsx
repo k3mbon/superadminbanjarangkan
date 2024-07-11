@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import ReactHtmlParser from 'html-react-parser'; // Import ReactHtmlParser
@@ -47,7 +47,10 @@ const DocumentList = () => {
         return;
       }
 
-      await deleteDoc(db, `poststunda/${documentId}`);
+      // Create a reference to the document to be deleted
+      const documentRef = doc(db, 'poststunda', documentId);
+      await deleteDoc(documentRef);
+
       setDocuments((prevDocuments) =>
         prevDocuments.filter((document) => document.id !== documentId)
       );
