@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc, doc, addDoc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, addDoc, getDoc } from 'firebase/firestore'; // Import getDoc
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import ReactHtmlParser from 'html-react-parser';
@@ -101,7 +101,7 @@ const DocumentList = () => {
                 <p>{document.isi}</p>
               </div>
             </Link>
-            <div>
+            <div className="button-container">
               <button onClick={() => handleMoveToPosts(document.id)}>
                 Setujui
               </button>

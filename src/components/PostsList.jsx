@@ -1,7 +1,7 @@
-// PostsList.jsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
+import DOMPurify from 'dompurify';
 import '../styles/PostsList.css';
 
 const PostsList = () => {
@@ -24,29 +24,41 @@ const PostsList = () => {
     fetchPosts();
   }, []);
 
+  const extractFirstImage = (htmlContent) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    const images = tempDiv.querySelectorAll('img');
+
+    if (images && images.length > 0) {
+      return images[0].src;
+    }
+
+    return null;
+  };
+
   return (
-    <div className="mx-5">
+    <div className="posts-container">
       <h2>Posts List</h2>
-      <ul>
+      <div className="posts-grid">
         {posts.map((post) => (
-          <li key={post.id}>
-            <h3>{post.judul}</h3>
-            <p>{post.isi}</p>
-            {post.gambarUrls && (
-              <div>
-                {post.gambarUrls.map((imageUrl, index) => (
-                  <img
-                    key={index}
-                    src={imageUrl}
-                    alt={`Post Image ${index + 1}`}
-                  />
-                ))}
-              </div>
+          <div key={post.id} className="post-card">
+            {post.isi && (
+              <img
+                src={extractFirstImage(post.isi)}
+                alt="Thumbnail"
+                className="thumbnail"
+              />
             )}
-            {/* Add other fields as needed */}
-          </li>
+            <div className="post-content">
+              <h3>{post.judul}</h3>
+              <div
+                className="post-text"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.isi) }}
+              />
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

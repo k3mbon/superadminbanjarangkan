@@ -1,12 +1,26 @@
 .home-container {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .home-container > * {
-    margin: top;
-    padding: auto
+  display: flex;
+  justify-content: space-between;
 }
-  
-  /* Style each component as needed */
-  
+
+.home-container > * {
+  margin-top: 0; /* Corrected margin value */
+  padding: auto; /* Corrected padding value */
+}
+
+/* Adjust sidebar position */
+.bg-white {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 250px; /* Adjust width as needed */
+  overflow-y: auto; /* Enable scrolling if content exceeds height */
+  border-right: 1px solid #ddd; /* Optional: Add border for separation */
+}
+
+.py-5 {
+  padding-left: 270px; /* Adjust padding to accommodate fixed sidebar */
+}
+
+/* Style each component as needed */
