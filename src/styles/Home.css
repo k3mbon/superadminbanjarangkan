@@ -1,26 +1,47 @@
+/* Ensure this CSS file is imported in Home.jsx */
+
 .home-container {
   display: flex;
-  justify-content: space-between;
+  min-height: 100vh;
 }
 
-.home-container > * {
-  margin-top: 0; /* Corrected margin value */
-  padding: auto; /* Corrected padding value */
-}
-
-/* Adjust sidebar position */
-.bg-white {
+.sidebar-container {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   width: 250px; /* Adjust width as needed */
+  background-color: white;
+  z-index: 1000;
+  border-right: 1px solid #ddd;
   overflow-y: auto; /* Enable scrolling if content exceeds height */
-  border-right: 1px solid #ddd; /* Optional: Add border for separation */
 }
 
-.py-5 {
-  padding-left: 270px; /* Adjust padding to accommodate fixed sidebar */
+.content-container {
+  margin-left: 250px; /* Same as the sidebar width */
+  width: calc(100% - 250px); /* Adjust width dynamically */
+  padding: 20px;
+  overflow-y: auto; /* Enable vertical scrolling for content */
 }
 
-/* Style each component as needed */
+/* Add responsiveness */
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .content-container {
+    margin-left: 0;
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+/* Optional: Add styling to the main content area */
+.content-container > * {
+  margin-bottom: 20px; /* Spacing between components */
+}

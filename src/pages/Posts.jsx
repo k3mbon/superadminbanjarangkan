@@ -5,13 +5,10 @@ import Sidebar from '../components/Sidebar';
 const Posts = () => {
   return (
     <>
-      {' '}
-      <Container fluid className="bg-light min-vh-100">
-        <Row>
-          <Col md="3" className="bg-white min-vh-100">
-            <Sidebar />
-          </Col>
-          <Col className="py-5" md="9">
+      <Container fluid className="bg-light min-vh-100" style={{ paddingLeft: '300px' }}>
+      <Sidebar />
+      <Row className="g-0">
+        <Col md={9} className="py-5">
             <PostsList />
           </Col>
         </Row>

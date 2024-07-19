@@ -10,26 +10,22 @@ import {
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';  // Import useEffect and useState
-import { onAuthStateChanged } from 'firebase/auth';  // Import onAuthStateChanged
+import { useEffect, useState } from 'react';  
+import { onAuthStateChanged } from 'firebase/auth';  
 import Logo from '../assets/logo.png';
 import { Col, Row } from 'react-bootstrap';
-// ... (imports)
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Listen for changes in authentication state
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
 
-    // Clean up the subscription when the component unmounts
     return () => unsubscribe();
-  }, []); // Ensure this effect runs only once during component mount
-
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -41,58 +37,150 @@ const Sidebar = () => {
     }
   };
 
+  const sidebarStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '300px', // Adjust width as needed
+    padding: '10px',
+    backgroundColor: '#333',
+    color: '#fff',
+    borderRight: '2px solid #444',
+    height: '100vh',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    overflowY: 'auto', // Ensure vertical scrolling if content overflows
+    overflowX: 'hidden', // Prevent horizontal scrolling
+  };
+
+  const listItemStyle = {
+    textDecoration: 'none',
+    color: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '10px',
+    marginBottom: '10px',
+    border: 'none',
+    transition: 'background-color 0.3s ease',
+    whiteSpace: 'nowrap', // Prevent wrapping of text inside links
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Display ellipsis (...) for overflow text
+  };
+
+  const listItemHoverStyle = {
+    backgroundColor: '#555',
+  };
+
+  const adminTitleStyle = {
+    color: '#fff',
+    marginTop: '1rem',
+    overflowWrap: 'break-word', // Break long words or text
+  };
+
+  const userEmailStyle = {
+    marginTop: '0.5rem',
+    overflowWrap: 'break-word', // Break long words or text
+  };
+
+  const logoutButtonStyle = {
+    backgroundColor: '#e53935',
+    color: '#fff',
+    border: 'none',
+    padding: '10px',
+    cursor: 'pointer',
+    borderRadius: '5px',
+    transition: 'background-color 0.3s ease',
+    marginTop: '1rem',
+  };
+
+  const logoutButtonHoverStyle = {
+    backgroundColor: '#c62828',
+  };
+
   return (
-    <>
-      <div>
-        <Row className="sidebar p-2">
-          <Col>
-            <img src={Logo} alt="Logo" />
-          </Col>
-        </Row>
-        <Row className="sidebar p-2">
-          <Col>
-            <span className="brand-name fs-4 mt-2">
-              SMA Negeri 1 Banjarangkan
-            </span>
-          </Col>
-        </Row>
-        <hr className="text-dark" />
-        <div className="list-group lish-group-flush">
-          <Link className="list-group-item py-2 mt-2" to="/">
-            <FaHome className="fs-5 me-2" />
-            <span className="fs-5">Home</span>
-          </Link>
-          <Link className="list-group-item py-2 mt-2" to="/agenda">
-            <FaCalendarAlt className="fs-5 me-2" />
-            <span className="fs-5">Agenda</span>
-          </Link>
-          <Link className="list-group-item py-2 mt-2" to="/posts">
-            <FaNewspaper className="fs-5 me-2" />
-            <span className="fs-5">Postingan Terbit</span>
-          </Link>
-          <Link className="list-group-item py-2 mt-2" to="/galeri">
-            <FaImages className="fs-5 me-2" />
-            <span className="fs-5">Galeri</span>
-          </Link>
-          <Link className="list-group-item py-2 mt-2" to="/prestasi">
-            <FaTrophy className="fs-5 me-2" />
-            <span className="fs-5">Prestasi</span>
-          </Link>
-          <Link className="list-group-item py-2 mt-2" to="/carousel">
-            <FaPhotoVideo className="fs-5 me-2" />
-            <span className="fs-5">Foto Carousel</span>
-          </Link>
-          {/* Display user email if available */}
-          <h2>Admin Saat Ini</h2>
-          {user && user.email && (
-            <p className="mt-2 fs-5">{user.email}</p>
-          )}
-          <button className="mt-5" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
+    <div style={sidebarStyle}>
+      <Row className="p-2">
+        <Col>
+          <img src={Logo} alt="Logo" style={{ width: '100%' }} />
+        </Col>
+      </Row>
+      <Row className="p-2">
+        <Col>
+          <span style={{ fontSize: '1.25rem', marginTop: '0.5rem' }}>
+            SMA Negeri 1 Banjarangkan
+          </span>
+        </Col>
+      </Row>
+      <hr style={{ borderColor: '#555' }} />
+      <div style={{ listStyle: 'none', padding: 0 }}>
+        <Link
+          to="/"
+          style={listItemStyle}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = listItemHoverStyle.backgroundColor}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+        >
+          <FaHome style={{ fontSize: '1.25rem', marginRight: '0.5rem' }} />
+          <span style={{ fontSize: '1.25rem' }}>Home</span>
+        </Link>
+        <Link
+          to="/agenda"
+          style={listItemStyle}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = listItemHoverStyle.backgroundColor}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+        >
+          <FaCalendarAlt style={{ fontSize: '1.25rem', marginRight: '0.5rem' }} />
+          <span style={{ fontSize: '1.25rem' }}>Agenda</span>
+        </Link>
+        <Link
+          to="/posts"
+          style={listItemStyle}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = listItemHoverStyle.backgroundColor}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+        >
+          <FaNewspaper style={{ fontSize: '1.25rem', marginRight: '0.5rem' }} />
+          <span style={{ fontSize: '1.25rem' }}>Postingan Terbit</span>
+        </Link>
+        <Link
+          to="/galeri"
+          style={listItemStyle}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = listItemHoverStyle.backgroundColor}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+        >
+          <FaImages style={{ fontSize: '1.25rem', marginRight: '0.5rem' }} />
+          <span style={{ fontSize: '1.25rem' }}>Galeri</span>
+        </Link>
+        <Link
+          to="/prestasi"
+          style={listItemStyle}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = listItemHoverStyle.backgroundColor}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+        >
+          <FaTrophy style={{ fontSize: '1.25rem', marginRight: '0.5rem' }} />
+          <span style={{ fontSize: '1.25rem' }}>Prestasi</span>
+        </Link>
+        <Link
+          to="/carousel"
+          style={listItemStyle}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = listItemHoverStyle.backgroundColor}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+        >
+          <FaPhotoVideo style={{ fontSize: '1.25rem', marginRight: '0.5rem' }} />
+          <span style={{ fontSize: '1.25rem' }}>Foto Carousel</span>
+        </Link>
+        <h2 style={adminTitleStyle}>Admin Saat Ini</h2>
+        {user && user.email && (
+          <p style={userEmailStyle}>{user.email}</p>
+        )}
+        <button
+          style={logoutButtonStyle}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = logoutButtonHoverStyle.backgroundColor}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = logoutButtonStyle.backgroundColor}
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
       </div>
-    </>
+    </div>
   );
 };
 

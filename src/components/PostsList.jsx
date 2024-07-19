@@ -51,10 +51,10 @@ const PostsList = () => {
             )}
             <div className="post-content">
               <h3>{post.judul}</h3>
-              <div
+              {/*<div
                 className="post-text"
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.isi) }}
-              />
+              />*/}
             </div>
           </div>
         ))}

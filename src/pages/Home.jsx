@@ -1,25 +1,21 @@
 import Sidebar from '../components/Sidebar';
 import BlogPosts from './BlogPosts';
 import DocumentList from '../components/DocumentList';
-import { Col, Container, Row } from 'react-bootstrap';
 import PostsList from '../components/PostsList';
+import { Container, Row, Col } from 'react-bootstrap';
 
 const Home = () => {
   return (
-    <>
-      <Container fluid className="bg-light min-vh-100">
-        <Row>
-          <Col md="3" className="bg-white min-vh-100">
-            <Sidebar />
-          </Col>
-          <Col className="py-5" md="auto">
-            <BlogPosts />
-            <DocumentList />
-            <PostsList />
-          </Col>
-        </Row>
-      </Container>
-    </>
+    <Container fluid className="bg-light min-vh-100" style={{ paddingLeft: '300px' }}>
+      <Sidebar />
+      <Row className="g-0">
+        <Col md={9} className="py-5">
+          <BlogPosts />
+          <DocumentList />
+          <PostsList />
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
