@@ -24,6 +24,19 @@ const PostsList = () => {
     fetchPosts();
   }, []);
 
+  const handleDeletePost = async (postId) => {
+    const confirmation = window.confirm('Are you sure you want to delete this post?');
+    if (confirmation) {
+      try {
+        await deleteDoc(doc(db, 'posts', postId));
+        setPosts(posts.filter(post => post.id !== postId));
+        console.log('Post deleted successfully');
+      } catch (error) {
+        console.error('Error deleting post:', error);
+      }
+    }
+  };
+
   const extractFirstImage = (htmlContent) => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
@@ -55,6 +68,9 @@ const PostsList = () => {
                 className="post-text"
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.isi) }}
               />*/}
+             {/* <button onClick={() => handleDeletePost(post.id)} className="delete-button">
+                Delete
+              </button>*/}
             </div>
           </div>
         ))}

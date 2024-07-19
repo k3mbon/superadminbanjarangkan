@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
+import DOMPurify from 'dompurify';
 import '../styles/PostsTerbit.css';
 
 const PostsTerbit = () => {
@@ -27,7 +28,7 @@ const PostsTerbit = () => {
     const confirmation = window.confirm('Are you sure you want to delete this post?');
     if (confirmation) {
       try {
-        await deleteDoc(doc(db, 'post', postId));
+        await deleteDoc(doc(db, 'posts', postId));
         setPosts(posts.filter(post => post.id !== postId));
         console.log('Post deleted successfully');
       } catch (error) {
@@ -36,29 +37,56 @@ const PostsTerbit = () => {
     }
   };
 
+  const extractFirstImage = (htmlContent) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    const images = tempDiv.querySelectorAll('img');
+
+    if (images && images.length > 0) {
+      return images[0].src;
+    }
+
+    return null;
+  };
+
   return (
-    <div className="mx-5">
+    <div className="posts-container">
       <h2>Posts List</h2>
-      <ul>
+      <div className="posts-grid">
         {posts.map((post) => (
-          <li key={post.id}>
-            <h3>{post.judul}</h3>
-            <p>{post.isi}</p>
-            {post.gambarUrls && (
-              <div>
-                {post.gambarUrls.map((imageUrl, index) => (
-                  <img
-                    key={index}
-                    src={imageUrl}
-                    alt={`Post Image ${index + 1}`}
-                  />
-                ))}
-              </div>
+          <div key={post.id} className="post-card">
+            {post.isi && (
+              <img
+                src={extractFirstImage(post.isi)}
+                alt="Thumbnail"
+                className="thumbnail"
+              />
             )}
-            <button onClick={() => handleDeletePost(post.id)}>Delete</button>
-          </li>
+            <div className="post-content">
+              <h3>{post.judul}</h3>
+              <div
+                className="post-text"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.isi) }}
+              />
+              {post.gambarUrls && (
+                <div className="post-images">
+                  {post.gambarUrls.map((imageUrl, index) => (
+                    <img
+                      key={index}
+                      src={imageUrl}
+                      alt={`Post Image ${index + 1}`}
+                      className="post-image"
+                    />
+                  ))}
+                </div>
+              )}
+              <button onClick={() => handleDeletePost(post.id)} className="delete-button">
+                Delete
+              </button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
