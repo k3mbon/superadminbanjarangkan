@@ -4,12 +4,10 @@ import Sidebar from '../components/Sidebar';
 
 const Carousel = () => {
   return (
-    <Container fluid className="bg-light min-vh-100">
-      <Row>
-        <Col md="3" className="bg-white min-vh-100">
-          <Sidebar />
-        </Col>
-        <Col className="py-5" md="auto">
+    <Container fluid className="bg-light min-vh-100" style={{ paddingLeft: '300px' }}>
+      <Sidebar />
+      <Row className="g-0">
+        <Col md={9} className="py-5">
           <CarouselImage />
         </Col>
       </Row>
