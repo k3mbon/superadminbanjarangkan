@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc, doc, addDoc, getDoc } from 'firebase/firestore'; // Import getDoc
+import { collection, deleteDoc, doc, addDoc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import ReactHtmlParser from 'html-react-parser';
@@ -9,20 +9,16 @@ const DocumentList = () => {
   const [documents, setDocuments] = useState([]);
 
   useEffect(() => {
-    const fetchDocuments = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'poststunda'));
-        const data = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setDocuments(data);
-      } catch (error) {
-        console.error('Error fetching documents:', error);
-      }
-    };
+    const unsubscribe = onSnapshot(collection(db, 'poststunda'), (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setDocuments(data);
+    });
 
-    fetchDocuments();
+    // Clean up the subscription
+    return () => unsubscribe();
   }, []);
 
   const extractFirstImage = (htmlContent) => {
