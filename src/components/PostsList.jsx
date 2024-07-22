@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import DOMPurify from 'dompurify';
 import '../styles/PostsList.css';
@@ -8,20 +8,16 @@ const PostsList = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'posts'));
-        const postsData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setPosts(postsData);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      }
-    };
+    const unsubscribe = onSnapshot(collection(db, 'posts'), (querySnapshot) => {
+      const postsData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPosts(postsData);
+    });
 
-    fetchPosts();
+    // Clean up the subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   const handleDeletePost = async (postId) => {
@@ -68,7 +64,7 @@ const PostsList = () => {
                 className="post-text"
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.isi) }}
               />*/}
-             {/* <button onClick={() => handleDeletePost(post.id)} className="delete-button">
+              {/*<button onClick={() => handleDeletePost(post.id)} className="delete-button">
                 Delete
               </button>*/}
             </div>
