@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import DOMPurify from 'dompurify';
 import '../styles/PostsList.css';
 
 const PostsList = () => {
@@ -16,7 +15,6 @@ const PostsList = () => {
       setPosts(postsData);
     });
 
-    // Clean up the subscription on unmount
     return () => unsubscribe();
   }, []);
 
@@ -25,7 +23,6 @@ const PostsList = () => {
     if (confirmation) {
       try {
         await deleteDoc(doc(db, 'posts', postId));
-        setPosts(posts.filter(post => post.id !== postId));
         console.log('Post deleted successfully');
       } catch (error) {
         console.error('Error deleting post:', error);
@@ -51,24 +48,24 @@ const PostsList = () => {
       <div className="posts-grid">
         {posts.map((post) => (
           <div key={post.id} className="post-card">
-            {post.isi && (
-              <img
-                src={extractFirstImage(post.isi)}
-                alt="Thumbnail"
-                className="thumbnail"
-              />
-            )}
-            <div className="post-content">
-              <h3>{post.judul}</h3>
-              {/*<div
-                className="post-text"
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.isi) }}
-              />*/}
-              {/*<button onClick={() => handleDeletePost(post.id)} className="delete-button">
-                Delete
-              </button>*/}
-            </div>
+          {post.isi && (
+            <img
+              src={extractFirstImage(post.isi)}
+              alt="Thumbnail"
+              className="thumbnail"
+            />
+          )}
+          <div className="post-content">
+            <h3>{post.judul}</h3>
+            <button
+              onClick={() => handleDeletePost(post.id)}
+              className="delete-button"
+            >
+              Delete
+            </button>
           </div>
+        </div>
+        
         ))}
       </div>
     </div>
